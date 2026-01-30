@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文字小世界</title>
+    <title>文字小世界 - 进阶版</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -22,13 +22,10 @@
         }
 
         body {
-            /* 【修改点1】背景颜色改为浅色 */
             background-color: #f0e6d2; 
-            /* 加一点可爱的背景纹理 */
             background-image: radial-gradient(#d6c4a0 15%, transparent 16%), radial-gradient(#d6c4a0 15%, transparent 16%);
             background-size: 60px 60px;
             background-position: 0 0, 30px 30px;
-            
             display: flex;
             justify-content: center;
             align-items: center;
@@ -43,7 +40,7 @@
             box-shadow: 
                 inset 4px 4px 0px rgba(255,255,255,0.3),
                 inset -4px -4px 0px rgba(0,0,0,0.2),
-                0 10px 20px rgba(0,0,0,0.2); /* 增加一点外部阴影 */
+                0 10px 20px rgba(0,0,0,0.2);
             position: relative;
         }
 
@@ -69,8 +66,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.6); /*稍微加深背景让文字更清晰*/
+            backdrop-filter: blur(4px);
             z-index: 10;
             transition: opacity 0.5s;
         }
@@ -84,14 +81,15 @@
         h1 {
             font-size: 60px;
             color: #fff;
-            text-shadow: 4px 4px 0 #5c3a1e; /* 字体描边颜色加深，增加对比度 */
-            margin-bottom: 20px;
+            text-shadow: 4px 4px 0 #5c3a1e;
+            margin-bottom: 10px;
+            margin-top: 0;
         }
 
         .pixel-btn {
             background: #ffcc00;
             border: 4px solid #fff;
-            padding: 15px 30px;
+            padding: 10px 20px;
             font-size: 24px;
             cursor: pointer;
             color: #5c3a1e;
@@ -107,6 +105,38 @@
             box-shadow: 0 0 0 #b38f00;
         }
 
+        /* 登录框样式 */
+        .login-panel {
+            background: var(--pixel-bg);
+            border: 4px solid var(--wood-border);
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        /* 统计看板样式 */
+        .stats-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 8px;
+            border: 4px solid var(--wood-border);
+            margin-bottom: 20px;
+            width: 80%;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            color: var(--wood-border);
+        }
+        
+        .stat-icon { font-size: 32px; margin-right: 10px; }
+
+        /* 游戏界面 */
         #game-interface {
             display: flex;
             height: 100%;
@@ -174,14 +204,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.npc {
-            align-self: flex-start;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
+        .message.npc { align-self: flex-start; }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
 
         .avatar {
             width: 40px;
@@ -205,15 +229,8 @@
             box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
         }
 
-        .npc .bubble {
-            background: var(--chat-npc);
-            border: 2px solid #ccc;
-        }
-
-        .user .bubble {
-            background: var(--chat-user);
-            border: 2px solid #add8e6;
-        }
+        .npc .bubble { background: var(--chat-npc); border: 2px solid #ccc; }
+        .user .bubble { background: var(--chat-user); border: 2px solid #add8e6; }
 
         #input-container {
             display: flex;
@@ -232,10 +249,7 @@
             outline: none;
         }
 
-        #send-btn {
-            padding: 5px 20px;
-            font-size: 20px;
-        }
+        #send-btn { padding: 5px 20px; font-size: 20px; }
 
         #reward-toast {
             position: absolute;
@@ -265,19 +279,48 @@
             font-size: 16px;
             margin-left: 60px;
         }
+
+        /* 历史记录按钮 */
+        .history-btn-small {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 16px;
+            padding: 5px 10px;
+        }
     </style>
 </head>
 <body>
 
 <div id="app-container" class="pixel-box">
     
-    <div id="home-screen" class="screen">
+    <div id="login-screen" class="screen">
         <h1>文字小世界</h1>
-        <div style="font-size: 80px; margin-bottom: 20px;">🏡</div>
-        <button class="pixel-btn" onclick="goToSelection()">进入文字世界</button>
+        <div class="login-panel">
+            <div style="font-size: 60px; margin-bottom: 20px;">📘</div>
+            <h3>请输入你的名字开启存档：</h3>
+            <input type="text" id="username-input" placeholder="例如：小明" style="width: 200px; text-align: center;">
+            <br>
+            <button class="pixel-btn" onclick="handleLogin()">开始冒险</button>
+        </div>
+    </div>
+
+    <div id="home-screen" class="screen hidden">
+        <h2 id="welcome-msg" style="color: white; text-shadow: 2px 2px 0 #000;">你好！</h2>
+        
+        <div class="stats-board">
+            <div class="stat-item"><span class="stat-icon">🦸</span> 已结识人物: <span id="stat-people">0</span></div>
+            <div class="stat-item"><span class="stat-icon">🌻</span> 培育植物: <span id="stat-plants">0</span></div>
+            <div class="stat-item"><span class="stat-icon">🏞️</span> 探索地图: <span id="stat-maps">0</span></div>
+            <div class="stat-item"><span class="stat-icon">🏰</span> 建造设施: <span id="stat-builds">0</span></div>
+        </div>
+
+        <button class="pixel-btn" onclick="goToSelection()">开始新创作</button>
+        <button class="pixel-btn" style="background:#ddd; font-size: 18px;" onclick="logout()">退出/切换账号</button>
     </div>
 
     <div id="selection-screen" class="screen hidden">
+        <button class="pixel-btn history-btn-small" onclick="goHome()">返回主页</button>
         <div class="pixel-box" style="padding: 20px; background: white; text-align: center; border-radius: 8px;">
             <div style="font-size: 50px;">🧚‍♂️</div>
             <h2>你今天想完成怎样的文字任务？</h2>
@@ -304,6 +347,8 @@
                 <button id="send-btn" class="pixel-btn" onclick="sendMessage()">发送</button>
             </div>
         </div>
+        
+        <button class="pixel-btn history-btn-small" onclick="quitTask()">保存并退出</button>
     </div>
 
     <div id="reward-toast" class="hidden">
@@ -318,12 +363,13 @@
     const API_KEY = 'sk-a8d5cef165e34c2eb48f70d924db43e3';
     const API_URL = 'https://api.deepseek.com/chat/completions';
 
-    // --- 全局状态 ---
+    // --- 全局变量 ---
+    let currentUser = null;
+    let userData = {}; // 存放当前用户的所有数据
     let currentTask = null;
     let messageHistory = [];
     let progressStep = 0;
 
-    // --- Prompt 数据 ---
     const SYSTEM_PROMPT_BASE = `
         你是一个小学三年级作文引导游戏中的引导精灵。
         你的任务是通过提问和简要提示，引导学生一步一步完成作文构思。
@@ -375,10 +421,77 @@
         `
     };
 
+    // --- 数据库/存档逻辑 (LocalStorage) ---
+    
+    function handleLogin() {
+        const input = document.getElementById('username-input');
+        const name = input.value.trim();
+        if(!name) return alert("请输入名字哦！");
+        
+        currentUser = name;
+        loadUserData(name);
+        
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('home-screen').classList.remove('hidden');
+        updateHomeUI();
+    }
+
+    function loadUserData(username) {
+        const key = 'textworld_user_' + username;
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            userData = JSON.parse(saved);
+        } else {
+            // 新用户初始化
+            userData = {
+                username: username,
+                stats: { people: 0, plants: 0, maps: 0, builds: 0 },
+                history: [] // 存储过去的对话记录
+            };
+        }
+    }
+
+    function saveUserData() {
+        if (!currentUser) return;
+        const key = 'textworld_user_' + currentUser;
+        localStorage.setItem(key, JSON.stringify(userData));
+    }
+
+    function logout() {
+        currentUser = null;
+        userData = {};
+        document.getElementById('home-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('username-input').value = '';
+    }
+
+    function updateHomeUI() {
+        document.getElementById('welcome-msg').textContent = `你好，${currentUser}！`;
+        document.getElementById('stat-people').textContent = userData.stats.people;
+        document.getElementById('stat-plants').textContent = userData.stats.plants;
+        document.getElementById('stat-maps').textContent = userData.stats.maps;
+        document.getElementById('stat-builds').textContent = userData.stats.builds;
+    }
+
     // --- 界面导航 ---
+    function goHome() {
+        document.getElementById('selection-screen').classList.add('hidden');
+        document.getElementById('game-interface').classList.add('hidden');
+        document.getElementById('home-screen').classList.remove('hidden');
+        updateHomeUI();
+    }
+
     function goToSelection() {
         document.getElementById('home-screen').classList.add('hidden');
         document.getElementById('selection-screen').classList.remove('hidden');
+    }
+
+    // 强行退出当前任务
+    function quitTask() {
+        if(confirm("确定要退出吗？当前的对话会被保存。")) {
+            saveCurrentChatToHistory(false); // 保存但不算完成任务
+            goHome();
+        }
     }
 
     function startTask(taskType) {
@@ -386,12 +499,11 @@
         progressStep = 0;
         messageHistory = [];
 
-        // 初始化视觉区
         updateVisuals(0);
 
         document.getElementById('selection-screen').classList.add('hidden');
         document.getElementById('game-interface').classList.remove('hidden');
-        document.getElementById('chat-history').innerHTML = ''; // 清空聊天记录
+        document.getElementById('chat-history').innerHTML = ''; 
 
         const fullPrompt = SYSTEM_PROMPT_BASE + PROMPTS[taskType];
         messageHistory.push({ role: "system", content: fullPrompt });
@@ -434,23 +546,17 @@
         const text = input.value.trim();
         if (!text) return;
 
-        // 1. 显示用户消息
         addMessage('user', text);
         input.value = '';
 
-        // 【修改点3】检测 "再见" 逻辑
         if (text.includes("再见") || text.includes("拜拜")) {
-            // 触发通关逻辑
-            finishTask();
-            return; // 不再调用 API
+            finishTask(); // 正常完成
+            return;
         }
 
         messageHistory.push({ role: "user", content: text });
-
-        // 2. 显示加载中
         document.getElementById('typing').classList.remove('hidden');
 
-        // 3. 调用 DeepSeek API
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -473,7 +579,6 @@
             addMessage('npc', aiText);
             messageHistory.push({ role: "assistant", content: aiText });
 
-            // 触发正常奖励
             progressStep++;
             triggerReward(false);
 
@@ -484,30 +589,46 @@
         }
     }
 
-    // --- 任务完成/退出逻辑 ---
+    // --- 任务结算与存档核心 ---
     function finishTask() {
-        // 强制显示最终形态
         progressStep = 999; 
         updateVisuals(progressStep);
+        addMessage('npc', "真棒！构思完成！文字世界已记录你的创作！再见！👋");
         
-        // 精灵回复
-        addMessage('npc', "真棒！你的构思已经完成了。文字世界因为你的创作变得更丰富了！再见！👋");
-        
-        // 显示大奖励
+        // 1. 更新统计数据 (成就)
+        if (currentTask === 'people') userData.stats.people++;
+        if (currentTask === 'observation') userData.stats.plants++;
+        if (currentTask === 'scenery') userData.stats.maps++;
+        if (currentTask === 'idea') userData.stats.builds++;
+
+        // 2. 保存本次对话记录
+        saveCurrentChatToHistory(true);
+
+        // 3. 写入 LocalStorage
+        saveUserData();
+
         const toast = document.getElementById('reward-toast');
         document.getElementById('reward-icon').textContent = '🏆';
-        document.getElementById('reward-text').textContent = '任务完美完成！';
+        document.getElementById('reward-text').textContent = '任务完成！成就已更新！';
         toast.classList.remove('hidden');
 
-        // 3秒后返回主页
         setTimeout(() => {
             toast.classList.add('hidden');
-            document.getElementById('game-interface').classList.add('hidden');
-            document.getElementById('selection-screen').classList.remove('hidden');
-            // 重置
-            progressStep = 0;
-            currentTask = null;
+            goHome(); // 返回带统计的主页
         }, 3000);
+    }
+
+    function saveCurrentChatToHistory(isCompleted) {
+        // 将当前的 messageHistory 存入 userData.history
+        const log = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            taskType: currentTask,
+            completed: isCompleted,
+            messages: messageHistory.slice(1) // 去掉 system prompt
+        };
+        userData.history.push(log);
+        saveUserData(); // 立即保存
     }
 
     function triggerReward(isFinal) {
@@ -518,23 +639,12 @@
         
         toast.classList.remove('hidden');
         
-        if (currentTask === 'people') {
-            toastIcon.textContent = '🧍';
-            toastText.textContent = '人物形象更加清晰了！';
-        } else if (currentTask === 'observation') {
-            toastIcon.textContent = '🌿';
-            toastText.textContent = '植物正在茁壮成长！';
-        } else if (currentTask === 'scenery') {
-            toastIcon.textContent = '🗺️';
-            toastText.textContent = '迷雾正在散去...';
-        } else if (currentTask === 'idea') {
-            toastIcon.textContent = '🔨';
-            toastText.textContent = '设施建设进度增加！';
-        }
+        if (currentTask === 'people') { toastIcon.textContent = '🧍'; toastText.textContent = '人物形象更加清晰了！'; } 
+        else if (currentTask === 'observation') { toastIcon.textContent = '🌿'; toastText.textContent = '植物正在茁壮成长！'; } 
+        else if (currentTask === 'scenery') { toastIcon.textContent = '🗺️'; toastText.textContent = '迷雾正在散去...'; } 
+        else if (currentTask === 'idea') { toastIcon.textContent = '🔨'; toastText.textContent = '设施建设进度增加！'; }
 
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 3000);
+        setTimeout(() => { toast.classList.add('hidden'); }, 3000);
     }
 
     function updateVisuals(step) {
@@ -546,7 +656,6 @@
         area.style.background = '#7cbd59';
         content.style.filter = 'none';
 
-        // 最终完成状态 (step 999)
         if (step === 999) {
             if (currentTask === 'people') { content.textContent = '🦸'; label.textContent = '人物创作完成！'; }
             if (currentTask === 'observation') { content.textContent = '🌻'; label.textContent = '植物完全盛开！'; }
@@ -556,8 +665,6 @@
         }
 
         if (currentTask === 'people') {
-            // 【修改点2】小动物改成人物形象
-            // 婴儿 -> 幼儿 -> 少年 -> 青年 -> 职业者 -> 英雄
             const stages = ['👶', '🧒', '👦', '🧑', '👨‍🏫', '🦸'];
             let index = Math.min(step, stages.length - 1);
             content.textContent = stages[index];
@@ -573,10 +680,7 @@
             content.textContent = '🏞️';
             let blurLevel = Math.max(0, 20 - step * 4);
             content.style.filter = `blur(${blurLevel}px)`;
-            
-            if (step === 0) label.textContent = "一片迷雾...";
-            else if (step < 3) label.textContent = "隐约可见...";
-            else label.textContent = "景色宜人！";
+            label.textContent = step < 3 ? "隐约可见..." : "景色宜人！";
         }
         else if (currentTask === 'idea') {
             const tools = ['📜', '✏️', '🔨', '🏗️', '🏰'];
